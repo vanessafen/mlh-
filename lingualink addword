@@ -1,0 +1,81 @@
+import Foundation
+import SwiftUI
+
+struct AddView : View {
+    var viewModel: ViewModel
+    // Allows parent view to track changes with this value (Binds ti
+    @Binding var showSheet : Bool
+    
+    @State private var topic: String = ""
+    @State private var language: String = ""
+    @State private var word = ""
+    
+    // Stores the word-translation pairs
+    @State private var wordPairs: [(word: String, translation: String)] = []
+    
+    var body: some View {
+        
+        NavigationView {
+            Form {
+                Section(header: Text("List Info")) {
+                    TextField("Enter a topic...", text: $topic)
+                    TextField("Enter a language...", text: $language)
+                    
+                    HStack {
+                        TextField("Enter a word...", text: $word)
+                        Spacer()
+                        Button(action: {
+                            wordPairs.append((word: $word.wrappedValue, translation: "translation"))
+                            $word.wrappedValue = ""
+                        }) {
+                        Image(systemName: "plus.circle.fill")
+                                .foregroundColor(/*@START_MENU_TOKEN@*/.blue/*@END_MENU_TOKEN@*/)
+                        }
+                        // restricts the clickable area of thr button to just the plus
+                        .buttonStyle(PlainButtonStyle())
+                    }
+                   
+                }
+                if wordPairs.count > 0 {
+                    Section(header: Text("Words & Translations")) {
+                        // Display added pairs
+                        ForEach(0..<wordPairs.count, id: \.self) { index in
+                            
+                            HStack {
+                                Text(wordPairs[index].word)
+                                    .foregroundColor(.primary)
+                                Spacer()
+                                Text("translation").italic()
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                        .onDelete(perform: { indexSet in
+                            delete(indexSet)
+                        })
+                    }
+                }
+            }
+            .navigationBarTitle("Create List", displayMode: .inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") {
+                        showSheet.toggle()
+                    }
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Save") {
+                        // TODO: Call addTopic here
+                        let wordsDictionary = Dictionary(uniqueKeysWithValues: wordPairs)
+                        viewModel.addWordList(language: language, topic: topic, words: wordsDictionary)
+                        showSheet.toggle()
+                    }
+                }
+            }
+        }
+    }
+    
+    // Function to delete a place object from modelContext
+    func delete(_ indexSet: IndexSet) {
+        wordPairs.remove(atOffsets: indexSet)
+    }
+}
