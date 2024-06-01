@@ -64,7 +64,7 @@ struct AddView : View {
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Save") {
-                        // TODO: Call addTopic here
+                        
                         let wordsDictionary = Dictionary(uniqueKeysWithValues: wordPairs)
                         viewModel.addWordList(language: language, topic: topic, words: wordsDictionary)
                         showSheet.toggle()
